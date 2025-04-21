@@ -183,3 +183,33 @@
         )
     )
 )
+
+;; Private Helper Functions
+
+;; Calculate collateral requirements based on credit score
+;; Higher scores require less collateral as percentage of loan amount
+(define-private (calculate-required-collateral (amount uint) (score uint))
+    (let ((collateral-ratio (- u100 (/ (* score u50) u100))))
+        (/ (* amount collateral-ratio) u100)))
+
+;; Calculate interest rate based on credit score
+;; Higher scores receive lower interest rates
+(define-private (calculate-interest-rate (score uint))
+    (let ((base-rate u10))
+        (- base-rate (/ (* score u5) u100))))
+
+;; Calculate the total amount due including interest
+(define-private (calculate-total-due (loan {
+        borrower: principal,
+        amount: uint,
+        collateral: uint,
+        due-height: uint,
+        interest-rate: uint,
+        is-active: bool,
+        is-defaulted: bool,
+        repaid-amount: uint
+    }))
+    (let ((interest (* (get amount loan) (get interest-rate loan))))
+        (+ (get amount loan) (/ interest u100))
+    )
+)
